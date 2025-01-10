@@ -2,15 +2,9 @@
 
 // READ: 数组向指针退化 <https://zh.cppreference.com/w/cpp/language/array#%E6%95%B0%E7%BB%84%E5%88%B0%E6%8C%87%E9%92%88%E7%9A%84%E9%80%80%E5%8C%96>
 bool is_fibonacci(int *ptr, int len, int stride) {
-    ASSERT(len >= 3, "`len` should be at least 3");
-    // 循环遍历数列，按照每stride个元素取1个元素的规则来检查
-    for (int i = 0; i < len - 2; i += stride) {
-        // 获取当前位置、下一个位置以及再下一个位置的元素（按照步长规则）
-        int current = ptr[i];
-        int next = ptr[i + stride];
-        int nextNext = ptr[i + 2 * stride];
-        // 判断是否满足斐波那契数列的特性
-        if (nextNext != current + next) {
+    for (int i = 0; i < len - 2; i += 1) {
+        //printf("ptr[%d] = %d, ptr[%d] = %d, ptr[%d] = %d\n", i * stride, ptr[i * stride], (i + 1) * stride, ptr[(i + 1) * stride], (i + 2) * stride, ptr[(i + 2) * stride]);
+        if (ptr[i * stride] + ptr[(i + 1) * stride] != ptr[(i + 2) * stride]) {
             return false;
         }
     }
