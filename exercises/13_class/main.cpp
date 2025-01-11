@@ -15,10 +15,18 @@ class Fibonacci {
 public:
     // TODO: 实现构造器
     // Fibonacci()
-
+    Fibonacci() : cached(2) {
+        cache[0] = 0;
+        cache[1] = 1;
+    }
     // TODO: 实现正确的缓存优化斐波那契计算
     size_t get(int i) {
-        for (; false; ++cached) {
+        // 先判断要获取的数是否已经在缓存中，如果在则直接返回
+        if (i < cached) {
+            return cache[i];
+        }
+        // 从已有的缓存项开始继续填充缓存，直到包含要获取的索引对应的项
+        for (; cached < sizeof(cache) / sizeof(cache[0]); ++cached) {
             cache[cached] = cache[cached - 1] + cache[cached - 2];
         }
         return cache[i];
