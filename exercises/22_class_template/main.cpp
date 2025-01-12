@@ -10,10 +10,10 @@ struct Tensor4D {
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
-        std::memcpy(shape, shape_, 4 * sizeof(unsigned int));
+        memcpy(shape, shape_, 4 * sizeof(unsigned int));
         size = shape[0] * shape[1] * shape[2] * shape[3];
         data = new T[size];
-        std::memcpy(data, data_, size * sizeof(T));
+        memcpy(data, data_, size * sizeof(T));
     }
     ~Tensor4D() {
         delete[] data;
