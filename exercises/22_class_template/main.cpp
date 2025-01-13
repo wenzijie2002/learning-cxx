@@ -1,5 +1,5 @@
 ﻿#include "../exercise.h"
-
+#include <cstring>
 // READ: 类模板 <https://zh.cppreference.com/w/cpp/language/class_template>
 
 template<class T>
@@ -13,7 +13,7 @@ struct Tensor4D {
         // TODO: 填入正确的 shape 并计算 size
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
-
+    }
     ~Tensor4D() {
         delete[] data;
     }
@@ -29,37 +29,38 @@ struct Tensor4D {
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
         // TODO: 实现单向广播的加法
-        int oi, oj, ok, ol;
-        for (int i = 0; i < shape[0]; i++) {
-            if (others.shape[0] != shape[0]) {
-                oi = 0;
-            } else {
-                oi = i;
+        // 计算每个维度的有效尺寸（取两者中的最大值）
+        unsigned int effective_shape[4];
+        for (int i = 0; i < 4; ++i) {
+            effective_shape[i] = std::max(this->shape[i], others.shape[i]);
+        }
+
+        // 计算总元素数量
+        unsigned int total_elements = effective_shape[0] * effective_shape[1] * effective_shape[2] * effective_shape[3];
+
+        // 进行广播加法
+        for (unsigned int idx = 0; idx < total_elements; ++idx) {
+            // 将线性索引转换为四维坐标
+            unsigned int coords[4];
+            unsigned int remaining = idx;
+            for (int dim = 3; dim >= 0; --dim) {
+                coords[dim] = remaining % effective_shape[dim];
+                remaining /= effective_shape[dim];
             }
-            for (int j = 0; j < shape[1]; j++) {
-                if (others.shape[1] != shape[1]) {
-                    oj = 0;
-                } else {
-                    oj = j;
-                }
-                for (int k = 0; k < shape[2]; k++) {
-                    if (others.shape[2] != shape[2]) {
-                        ok = 0;
-                    } else {
-                        ok = k;
-                    }
-                    for (int l = 0; l < shape[3]; l++) {
-                        if (others.shape[3] != shape[3]) {
-                            ol = 0;
-                        } else {
-                            ol = l;
-                        }
-                        auto index = i * shape[1] * shape[2] * shape[3] + j * shape[2] * shape[3] + k * shape[3] + l;
-                        auto oindex = oi * others.shape[1] * others.shape[2] * others.shape[3] + oj * others.shape[2] * others.shape[3] + ok * others.shape[3] + ol;
-                        data[index] += others.data[oindex];
-                    }
-                }
+
+            // 计算当前坐标的偏移量
+            unsigned int this_offset = 0, other_offset = 0;
+            unsigned int factor_this = 1, factor_other = 1;
+            for (int dim = 3; dim >= 0; --dim) {
+                this_offset += coords[dim] * (this->shape[dim] == 1 ? 0 : factor_this);
+                other_offset += coords[dim] * (others.shape[dim] == 1 ? 0 : factor_other);
+
+                factor_this *= this->shape[dim];
+                factor_other *= others.shape[dim];
             }
+
+            // 执行加法
+            this->data[this_offset] += others.data[other_offset];
         }
         return *this;
     }
